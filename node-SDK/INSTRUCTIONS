@@ -1,0 +1,120 @@
+To Start The Project:
+You need to have set up the hyperledger dev envoirment in you linux system
+
+1)Open the fabric directory inside the project directory then open the first network from the first network directory excute command throw terminal ./byfn.sh up -s couchdb
+it will set up HL network of 3 peers and there couchdb instnses with a working CA and orderer.
+
+2) When All of this will complete you can see your Network By ($docker ps) commnd. Now Run the Following Command to install chaincode on the peer0.
+docker exec cli peer chaincode install -n agri -l golang -p github.com/chaincode/agri -v 0.1
+the version no. at the end chnges everytime you install chaincode
+
+Similarly For PEER1:
+docker exec -e "CORE_PEER_LOCALMSPID=Org1MSP" -e "CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer1.org1.example.com/tls/ca.crt" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp" -e "CORE_PEER_ADDRESS=peer1.org1.example.com:8051" cli peer chaincode install -n agri -p github.com/chaincode/agri -v 0.1
+
+PEER2; 
+ docker exec -e "CORE_PEER_LOCALMSPID=Org1MSP" -e "CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer2.org1.example.com/tls/ca.crt" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp" -e "CORE_PEER_ADDRESS=peer2.org1.example.com:9051" cli peer chaincode install -n agri -p github.com/chaincode/agri -v 0.1
+
+
+3) Now A Single Command Will Instantiate The Chaincode On the Network:
+
+Run This In Terminal Before Instantiate Coomnd
+export ORDERER_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+
+
+docker exec cli peer chaincode instantiate -o orderer.example.com:7050 --cafile $ORDERER_CA -C mychannel -c '{"Args":[]}' -n agri -v 0.1 -P "OR('Org1MSP.member')"
+This Will Take Some Time.
+
+
+
+Now Head To The NodeJS Directory:
+
+1)There Are Three Directories Expert Farmer Vendor All three Have Different Apis So the can use different Peers And Can Also Run On different Servers.
+
+2)********IMPORTANT******: PLEASE MAKE SURE THAT HFC-KEY-STORE DIRECTORY IS EMPTY IN EVERY OF THE 3 DIRECTORY AGAIN PLZ MAKE SURE OR IT WILL CREATE PROBLEMS
+
+
+3)Now In Each Directory Seprately in 3 different terminals From these directories one terminal from each directory run these 3 commands
+
+node enrollAdmin.js => in all seperately
+
+node registerExpert.js  / node registerFarmer.js / node registerVendor.js => one command for respective directory e.g expert in expert and farmer in farmer etc
+
+node app.js => in all seperately
+
+
+
+
+Now Head To GUI:
+Now either start the index.html file directly or run in the terminal google-chrome index.html.
+Your System is Working.
+
+
+
+
+
+Work Flow:
+Farmer can register and login same goes for other 2 actors: sometimes registering the first vendor or farmer or expert may take time becuase the peers commincate thier copy of ledger it inly happens some time during first sign up.
+
+
+Famrer can ask expert advice by dexcribing his problem.
+Famer can view his request sent to the expert also see if theres any response
+
+farmer can ask vendor for product by describing product
+and view is the vendor has responded.
+
+it can also view product posted by vendors and their reviews
+
+
+Vendor can view farmer request and give their quatation
+Vendor can also post products for advertise
+
+
+Expert can give farmer advice privately
+expert can rate vendor product without vendor knowing a private between farmer and expert.
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+

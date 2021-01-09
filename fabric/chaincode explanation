@@ -1,0 +1,114 @@
+
+
+Inside The Project directory there is a fabric directory and in there is chaincode directory open that directory.
+ In there Open the agri directory
+
+there will be file called agri.go which is the chaincode written in go lang.
+
+OPen IT:
+
+At Start we import all the binaries needed for the go lang chaincode to interact with the Hyperledger network.
+
+the last two are important the shim api is for the communication of data between network and the chaincode while peer import is for communications with peers
+
+Moving On
+
+There Are Structs
+Each Struct Defines The Actors Or Entites of the Chaincodes Consider them as Definig how your blockchain datebase is going to look. for example you will have table Expert and these will be the feilds inside .
+
+In the Nutrient Struct i am storing Farmers Request To Experts For Nutrient defficiency.
+
+Moving On.
+There is a Function init after the structs This function only confirms that the smart contract is successfully installed and instantiated.
+
+Then there is invoke functioN:
+invoke is to trigger a function in smart contract you have to triiger any function in your smart contract through the invoke function you cannot trigger it directly.
+You will see all the other function are defined through or called through if statement in the invoke function.
+
+After this there all the functions which will query data or post data in the network.
+For Example lets take add Expert Function:
+
+
+func (t *SmartContract) addExpert(stub shim.ChaincodeStubInterface, args []string) peer.Response {
+
+	var err error
+
+	if len(args) != 3 {
+		return shim.Error("Incorrect Number of Aruments. Expecting 3") We Check that if the number of feilds for the table are correct
+	}
+
+	fmt.Println("Adding new Expert")
+
+	// ==== Input sanitation ====
+	if len(args[0]) <= 0 {
+		return shim.Error("1st Argument Must be a Non-Empty String")
+	}
+	if len(args[1]) <= 0 {
+		return shim.Error("2nd Argument Must be a Non-Empty String")
+	}
+	if len(args[2]) <= 0 {
+		return shim.Error("3rd Argument Must be a Non-Empty String")
+	}
+
+	expert_ID := args[0] We Are defining which argument gets stored in which feild,
+	username := args[1]
+	password := args[2]
+
+	// ======Check if expert Already exists
+
+	expertAsBytes, err := stub.GetState(expert_ID)
+	if err != nil {
+		return shim.Error("Transaction Failed with Error: " + err.Error())
+	} else if expertAsBytes != nil {
+		return shim.Error("The Inserted expert ID already Exists: " + expert_ID)
+	}
+
+	// ===== Create expert Object and Marshal to JSON creating json object to send data to blockchain
+
+	objectType := "expert"
+	expert := &Expert{objectType, expert_ID, username, password}
+	expertJSONasBytes, err := json.Marshal(expert)
+
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	// ======= Save expert to State
+
+	err = stub.PutState(expert_ID, expertJSONasBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	// ======= Return Success
+
+	fmt.Println("Successfully Saved expert")
+	return shim.Success(nil)
+}
+
+
+
+
+and same there is query function:
+
+	queryString := fmt.Sprintf("{\"selector\":{\"Type\":\"expert\",\"username\":\"%s\",\"password\":\"%s\"}}", username, password)
+
+	queryResults, err := getQueryResultForQueryString(stub, queryString)
+
+there will two line of code like this inside the function first one describe the query you will send to the blockchain for data
+and the second line calls a function which is wriiten at the end before main function it is used and given by fabric when need to hndle query statements for example when we are using couchdb.
+
+
+
+
+All the functions are same only difference is thaht they are referrin g to their respective structs. 
+
+
+
+
+
+
+
+
+ 
+
